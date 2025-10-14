@@ -292,9 +292,9 @@ class FDFN(nn.Module):
         x = self.project_out(x)
         return x
 
-class FDFN_1(nn.Module):
+class DCGFN(nn.Module):
     def __init__(self, dim,ratio=2.66):
-        super(FDFN_1, self).__init__()
+        super(DCGFN, self).__init__()
 
         hidden_features = int(dim*ratio)
 
@@ -576,7 +576,7 @@ class Mlp(nn.Module):
         return x
 
 
-class SwinTransformerBlock1(nn.Module):
+class LADCMT(nn.Module):
     r""" Swin Transformer Block.
 
     Args:
@@ -598,7 +598,7 @@ class SwinTransformerBlock1(nn.Module):
     def __init__(self, dim, dim_head, num_heads, window_size, shift_size, mlp_ratio,
                  qkv_bias, drop, attn_drops, norm_layer=nn.LayerNorm, drop_path=0., act_layer=nn.GELU,
                  alpha=4, kernel_size=5):
-        super(SwinTransformerBlock1, self).__init__()
+        super(LADCMT, self).__init__()
         self.dim = dim
         self.dim_head = dim_head
         self.num_heads = num_heads
@@ -963,7 +963,7 @@ def window_partition(x, win_size, dilation_rate=1):
     return windows
 
 
-class LeWinTransformerBlock(nn.Module):
+class LAIWST(nn.Module):
     def __init__(self, dim, num_heads, win_size=8, shift_size=0, mlp_ratio=4., qkv_bias=True, qk_scale=None, drop=0.,
                  attn_drop=0., drop_path=0., act_layer=nn.GELU, norm_layer=nn.LayerNorm, token_projection='linear',
                  token_mlp='leff'):
@@ -1105,18 +1105,18 @@ class IGAB(nn.Module):
         for _ in range(num_blocks):
             self.blocks.append(nn.ModuleList([
                                                 # MDTA(dim=dim,dim_head=dim_head,heads=heads),
-                                              LayerNorm(dim),FDFN_1(dim),
+                                              LayerNorm(dim),DCGFN(dim),
                                             #   SwinTransformerBlock1(dim=dim, dim_head=dim_head, num_heads=heads,
                                             #                         window_size=window_size, mlp_ratio=mlp_ratio,
                                             #                         qkv_bias=qkv_bias, drop=drop, attn_drops=attn_drops,
                                             #                         norm_layer=norm_layer,
                                             #                         shift_size=0, alpha=4, kernel_size=5),
-                                              SwinTransformerBlock1(dim=dim, dim_head=dim_head, num_heads=heads,
+                                              LADCMT(dim=dim, dim_head=dim_head, num_heads=heads,
                                                                     window_size=window_size, mlp_ratio=mlp_ratio,
                                                                     qkv_bias=qkv_bias, drop=drop, attn_drops=attn_drops,
                                                                     norm_layer=norm_layer,
                                                                     shift_size=self.shifted_size, alpha=4, kernel_size=5),
-                                                LeWinTransformerBlock(dim=dim, num_heads=heads, win_size=window_size,
+                                                LAIWST(dim=dim, num_heads=heads, win_size=window_size,
                                                                     shift_size=0,
                                                                     mlp_ratio=mlp_ratio, qkv_bias=qkv_bias,
                                                                     qk_scale=qk_scale,
